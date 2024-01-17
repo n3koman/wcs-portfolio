@@ -4,7 +4,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 # Assuming you have a 'models' module with 'Assign' and 'Base' defined
 from models import Assign, Base
@@ -36,6 +36,14 @@ class AssignResponse(BaseModel):
     videoContent: str
     time: datetime
 
+def utc_to_local(utc_dt):
+    # Create a fixed offset for GMT+6 (6 hours ahead of UTC)
+    gmt_plus_6 = timezone(timedelta(hours=6))
+    
+    # Apply the offset to the UTC datetime
+    local_dt = utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=gmt_plus_6)
+    
+    return local_dt
 
 def get_db() -> Session:
     db = SessionLocal()
@@ -55,7 +63,7 @@ async def get_all_assigns(db: Session = Depends(get_db)):
 async def create_assign(assign: AssignBase, db: Session = Depends(get_db)):
     # Set the time field to the current time on the server side
     assign_data = assign.dict()
-    assign_data["time"] = datetime.now()
+    assign_data["time"] = utc_to_local(datetime.utcnow())
 
     db_assign = Assign(**assign_data)
     db.add(db_assign)
@@ -73,7 +81,7 @@ async def update_assign(assign_id: int, updated_assign: AssignBase, db: Session 
     for field, value in updated_assign.dict(exclude_unset=True).items():
         setattr(db_assign, field, value)
 
-    db_assign.time = datetime.now()
+    db_assign.time = utc_to_local(datetime.utcnow())
 
     db.commit()
     db.refresh(db_assign)

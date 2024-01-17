@@ -26,14 +26,14 @@ app.add_middleware(
 class AssignBase(BaseModel):
     title: str
     content: str
-    isvideo: bool
+    videoContent: str
 
 
 class AssignResponse(BaseModel):
     id: int
     title: str
     content: str
-    isvideo: bool
+    videoContent: str
     time: datetime
 
 

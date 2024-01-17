@@ -5,6 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import datetime
+from fastapi.responses import HTMLResponse
+from fastapi import Request
+
 
 # Assuming you have a 'models' module with 'Assign' and 'Base' defined
 from models import Assign, Base
@@ -91,3 +94,8 @@ async def delete_assign(assign_id: int, db: Session = Depends(get_db)):
     db.commit()
     
     return {"message": "Assign deleted successfully"}
+
+@app.get("/api/assignments", response_model=List[AssignResponse])
+async def get_all_assignments(db: Session = Depends(get_db)):
+    assignments = db.query(Assign).all()
+    return assignments

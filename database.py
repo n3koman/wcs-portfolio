@@ -2,7 +2,7 @@ from sqlalchemy import URL, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-connection_string = URL.create(
+URL_DATABASE = URL.create(
     'postgresql',
     username='koyeb-adm',
     password='yam3Cbgn4THq',
@@ -10,7 +10,7 @@ connection_string = URL.create(
     database='koyebdb',
 )
 
-engine = create_engine(connection_string)
+engine = create_engine(URL_DATABASE)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
